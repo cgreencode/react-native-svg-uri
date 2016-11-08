@@ -28,9 +28,9 @@ const ACEPTED_SVG_ELEMENTS = {'svg':true, 'g':true, 'circle':true, 'path':true,
 // Attributes from SVG elements that are mapped directly.
 const SVG_ATTS = {'viewBox':true};
 const G_ATTS = {'id':true};
-const CIRCLE_ATTS = {'cx':true, 'cy':true, 'r':true, 'fill':true, 'stroke':true};
+const CIRCLE_ATTS = {'cx':true, 'cy':true, 'r':true};
 const PATH_ATTS = {'d':true, 'fill':true, 'stroke':true};
-const RECT_ATTS = {'width':true, 'height':true, 'fill':true, 'stroke':true};
+const RECT_ATTS = {'width':true, 'height':true};
 const LINEARG_ATTS = {'id':true, 'x1':true, 'y1':true, 'x2':true, 'y2':true};
 const RADIALG_ATTS = {'id':true, 'cx':true, 'cy':true, 'r':true};
 const STOP_ATTS = {'offset':true};
@@ -59,7 +59,7 @@ class SvgUri extends Component{
 	constructor(props){
 		super(props);
 
-    this.state = {svgXmlData: props.svgXmlData};
+    this.state = {svgXmlData:null};
 
     this.createSVGElement     = this.createSVGElement.bind(this);
     this.transformSVGAtt      = this.transformSVGAtt.bind(this);
@@ -146,6 +146,11 @@ class SvgUri extends Component{
               }
           }
       }
+
+      if (this.props.fill && 'fill' in ATTS_ENABLED) {
+        return Object.assign({}, componentAtts, { fill: this.props.fill });
+      }
+
       return componentAtts;
   }
 

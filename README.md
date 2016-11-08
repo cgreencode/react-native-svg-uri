@@ -17,7 +17,7 @@ Install library from `npm`
 Link library react-native-svg
 
   ```bash
-  react-native link react-native-svg # not react-native-svg-uri !!!
+  react-native link react-native-svg
   ```   
   
 ### <a name="Usage">Usage</a>
