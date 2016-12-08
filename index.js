@@ -28,9 +28,9 @@ const ACEPTED_SVG_ELEMENTS = {'svg':true, 'g':true, 'circle':true, 'path':true,
 // Attributes from SVG elements that are mapped directly.
 const SVG_ATTS = {'viewBox':true};
 const G_ATTS = {'id':true};
-const CIRCLE_ATTS = {'cx':true, 'cy':true, 'r':true};
+const CIRCLE_ATTS = {'cx':true, 'cy':true, 'r':true, 'fill':true, 'stroke':true};
 const PATH_ATTS = {'d':true, 'fill':true, 'stroke':true};
-const RECT_ATTS = {'width':true, 'height':true};
+const RECT_ATTS = {'width':true, 'height':true, 'fill':true, 'stroke':true};
 const LINEARG_ATTS = {'id':true, 'x1':true, 'y1':true, 'x2':true, 'y2':true};
 const RADIALG_ATTS = {'id':true, 'cx':true, 'cy':true, 'r':true};
 const STOP_ATTS = {'offset':true};
@@ -59,7 +59,7 @@ class SvgUri extends Component{
 	constructor(props){
 		super(props);
 
-    this.state = {svgXmlData:null};
+    this.state = {svgXmlData: props.svgXmlData};
 
     this.createSVGElement     = this.createSVGElement.bind(this);
     this.transformSVGAtt      = this.transformSVGAtt.bind(this);
@@ -73,6 +73,11 @@ class SvgUri extends Component{
         this.fecthSVGData(source.uri);
     }
 	}
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.source && this.props.source.uri && nextProps.source.uri != this.props.source.uri)
+        this.fecthSVGData(nextProps.source.uri);
+  }
 
 
   async fecthSVGData(uri){
@@ -128,22 +133,24 @@ class SvgUri extends Component{
 
   obtainComponentAtts(node, ATTS_ENABLED, ATTS_TRANSFORM){
       let componentAtts = {};
-      for (let i = 0; i < node.attributes.length; i++) {
+      for (let i = 0; i < node.attributes.length; i++){
           let att = node.attributes[i];
-          if (att.nodeName in ATTS_TRANSFORM) {
-            att = this.transformSVGAtt(node.nodeName, att.nodeName, att.nodeValue);
-            componentAtts = Object.assign({}, componentAtts, att);
-          } else if (att.nodeName in ATTS_TRANSFORMED_NAMES) {
-            componentAtts[ATTS_TRANSFORMED_NAMES[att.nodeName]] = att.nodeValue;
-          } else if (att.nodeName in ATTS_ENABLED) {
-            componentAtts[att.nodeName] = att.nodeValue;
+          if (att.nodeName in ATTS_TRANSFORM){
+              att = this.transformSVGAtt(node.nodeName, att.nodeName, att.nodeValue);
+              componentAtts = Object.assign({}, componentAtts, att);
+          }else{
+
+              if (att.nodeName in ATTS_TRANSFORMED_NAMES){
+                componentAtts[ATTS_TRANSFORMED_NAMES[att.nodeName]] = att.nodeValue;
+              }else{
+                  if (att.nodeName in ATTS_ENABLED){ // Valida que el atributo sea mapeable
+                      componentAtts[att.nodeName] = att.nodeValue;
+                  }else{
+                      ;
+                  }
+              }
           }
       }
-
-      if (this.props.fill && 'fill' in ATTS_ENABLED) {
-        return Object.assign({}, componentAtts, { fill: this.props.fill });
-      }
-
       return componentAtts;
   }
 
@@ -217,10 +224,6 @@ class SvgUri extends Component{
       return null;
     }
 	}
-}
-
-SvgUri.propTypes = {
-  fill: PropTypes.string,
 }
 
 module.exports = SvgUri;
