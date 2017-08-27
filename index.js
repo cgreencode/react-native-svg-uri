@@ -41,7 +41,7 @@ const ACCEPTED_SVG_ELEMENTS = [
 ];
 
 // Attributes from SVG elements that are mapped directly.
-const SVG_ATTS = ['viewBox'];
+const SVG_ATTS = ['viewBox', 'width', 'height'];
 const G_ATTS = ['id'];
 
 const CIRCLE_ATTS = ['cx', 'cy', 'r'];
@@ -58,7 +58,7 @@ const TEXT_ATTS = ['fontFamily', 'fontSize', 'fontWeight']
 const POLYGON_ATTS = ['points'];
 const POLYLINE_ATTS = ['points'];
 
-const COMMON_ATTS = ['fill', 'fillOpacity', 'stroke', 'strokeWidth', 'strokeOpacity', 'opacity', 
+const COMMON_ATTS = ['fill', 'fillOpacity', 'stroke', 'strokeWidth', 'strokeOpacity', 'opacity',
     'strokeLinecap', 'strokeLinejoin',
     'strokeDasharray', 'strokeDashoffset', 'x', 'y', 'rotate', 'scale', 'origin', 'originX', 'originY'];
 
@@ -82,7 +82,7 @@ class SvgUri extends Component{
   constructor(props){
     super(props);
 
-    this.state = {svgXmlData: props.svgXmlData};
+    this.state = {fill: props.fill, svgXmlData: props.svgXmlData};
 
     this.createSVGElement     = this.createSVGElement.bind(this);
     this.obtainComponentAtts  = this.obtainComponentAtts.bind(this);
@@ -109,6 +109,14 @@ class SvgUri extends Component{
       if(source.uri !== oldSource.uri){
         this.fetchSVGData(source.uri);
       }
+    }
+
+    if (nextProps.svgXmlData !== this.props.svgXmlData) {
+      this.setState({ svgXmlData: nextProps.svgXmlData });
+    }
+
+    if (nextProps.fill !== this.props.fill) {
+      this.setState({ fill: nextProps.fill });
     }
   }
 
@@ -204,7 +212,7 @@ class SvgUri extends Component{
       Object.assign(styleAtts, utils.transformStyle({
         nodeName,
         nodeValue,
-        fillProp: this.props.fill
+        fillProp: this.state.fill
       }));
     });
 
@@ -213,7 +221,7 @@ class SvgUri extends Component{
       .map(utils.removePixelsFromNodeValue)
       .filter(utils.getEnabledAttributes(enabledAttributes.concat(COMMON_ATTS)))
       .reduce((acc, {nodeName, nodeValue}) => {
-        acc[nodeName] = this.props.fill && nodeName === 'fill' ? this.props.fill : nodeValue
+        acc[nodeName] = this.state.fill && nodeName === 'fill' ? this.state.fill : nodeValue
         return acc
       }, {});
     Object.assign(componentAtts, styleAtts);
