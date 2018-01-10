@@ -54,14 +54,14 @@ const RADIALG_ATTS = CIRCLE_ATTS.concat(['id', 'gradientUnits']);
 const STOP_ATTS = ['offset'];
 const ELLIPSE_ATTS = ['cx', 'cy', 'rx', 'ry'];
 
-const TEXT_ATTS = ['fontFamily', 'fontSize', 'fontWeight', 'textAnchor']
+const TEXT_ATTS = ['fontFamily', 'fontSize', 'fontWeight']
 
 const POLYGON_ATTS = ['points'];
 const POLYLINE_ATTS = ['points'];
 
 const COMMON_ATTS = ['fill', 'fillOpacity', 'stroke', 'strokeWidth', 'strokeOpacity', 'opacity',
     'strokeLinecap', 'strokeLinejoin',
-    'strokeDasharray', 'strokeDashoffset', 'x', 'y', 'rotate', 'scale', 'origin', 'originX', 'originY', 'transform', 'clipPath'];
+    'strokeDasharray', 'strokeDashoffset', 'x', 'y', 'rotate', 'scale', 'origin', 'originX', 'originY'];
 
 let ind = 0;
 
@@ -140,13 +140,13 @@ class SvgUri extends Component{
 
     return responseXML;
   }
-
-  // Remove empty strings from children array
+   
+  // Remove empty strings from children array  
   trimElementChilden(children) {
     for (child of children) {
       if (typeof child === 'string') {
-        if (child.trim().length === 0)
-          children.splice(children.indexOf(child), 1);
+        if (child.trim.length === 0)
+          children.splice(children.indexOf(child), 1); 
       }
     }
   }
@@ -203,6 +203,9 @@ class SvgUri extends Component{
       return <Polyline key={i} {...componentAtts}>{childs}</Polyline>;
     case 'text':
       componentAtts = this.obtainComponentAtts(node, TEXT_ATTS);
+      if (componentAtts.y) {
+        componentAtts.y = fixYPosition(componentAtts.y, node)
+      }
       return <Text key={i} {...componentAtts}>{childs}</Text>;
     case 'tspan':
       componentAtts = this.obtainComponentAtts(node, TEXT_ATTS);
@@ -217,6 +220,11 @@ class SvgUri extends Component{
 
   obtainComponentAtts({attributes}, enabledAttributes) {
     const styleAtts = {};
+
+    if (this.state.fill && this.props.fillAll) {
+      styleAtts.fill = this.state.fill;
+    }
+
     Array.from(attributes).forEach(({nodeName, nodeValue}) => {
       Object.assign(styleAtts, utils.transformStyle({
         nodeName,
@@ -300,6 +308,7 @@ SvgUri.propTypes = {
   svgXmlData: PropTypes.string,
   source: PropTypes.any,
   fill: PropTypes.string,
+  fillAll: PropTypes.bool
 }
 
 module.exports = SvgUri;
